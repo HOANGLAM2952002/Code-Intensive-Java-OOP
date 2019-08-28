@@ -1,43 +1,90 @@
+import com.sun.security.jgss.GSSUtil;
+
 import java.util.Random;
 import java.util.Scanner;
 
 public class Game {
+    Random rand = new Random();
+    int keyCount = 0;
     // toa do player
-    int playerX = 2;
-    int playerY = 2;
+    int playerX = rand.nextInt(4);
+    int playerY = rand.nextInt(4);
 
     // 2 con enemy in ra E
-    int firstEnemyX = 2;
-    int firstEnemyY = 0;
+    int firstEnemyX = rand.nextInt(4);
+    int firstEnemyY = rand.nextInt(4);
 
 
-    int secondEnemyX = 1;
-    int secondEnemyY = 1;
+    int secondEnemyX = rand.nextInt(4);
+    int secondEnemyY = rand.nextInt(4);
 
     // key
-    int keyX = 0;
-    int keyY = 2;
+    int keyX = rand.nextInt(4);
+    int keyY = rand.nextInt(4);
 
     //map size
     int mapWidth = 4;
     int mapHeight = 4;
 
-    public Game() {
-        this.playerX = 2;
-        this.playerY = 2;
+    // Enemy move
+    int move[] = {-1,0,1};
+    int i = rand.nextInt(3);
 
-        this.firstEnemyX = 2;
-        this.firstEnemyY = 0;
-        this.secondEnemyX = 1;
-        this.secondEnemyY = 1;
+    public Game() {
+        this.playerX = playerX;
+        this.playerY = playerY;
+
+        this.firstEnemyX = firstEnemyX;
+        this.firstEnemyY = firstEnemyY;
+        this.secondEnemyX = secondEnemyX;
+        this.secondEnemyY = secondEnemyY;
 
         this.mapHeight = 4;
         this.mapWidth = 4;
 
+        this.overlap();
+    }
+
+    private void overlap() {
+        // check player and first E
+        while (playerX == firstEnemyX && playerY == firstEnemyY){
+            int firstEnemyX = rand.nextInt(4);
+            int firstEnemyY = rand.nextInt(4);
+        }
+
+        // check player and second E
+        while (playerX == secondEnemyX && playerY == secondEnemyY){
+            int secondEnemyX = rand.nextInt(4);
+            int secondEnemyY = rand.nextInt(4);
+        }
+
+        // check first E and second E
+        while (firstEnemyX == secondEnemyX && firstEnemyY == secondEnemyY){
+            int secondEnemyX = rand.nextInt(4);
+            int secondEnemyY = rand.nextInt(4);
+        }
+
+        // check K and second E
+        while (keyX == secondEnemyX && keyY == secondEnemyY){
+            int keyX = rand.nextInt(4);
+            int keyY = rand.nextInt(4);
+        }
+
+        // check K and first E
+        while (keyX == firstEnemyX && keyY == firstEnemyY){
+            int keyX = rand.nextInt(4);
+            int keyY = rand.nextInt(4);
+        }
+
+        // check K and player
+        while (keyX == playerX && keyY == playerY){
+            int keyX = rand.nextInt(4);
+            int keyY = rand.nextInt(4);
+        }
     }
 
     // xu ly logic
-    public void run(){
+        public void run(){
         // nhan lenh va xu ly lenh
         // player nhap lenh
         Scanner sc = new Scanner(System.in);
@@ -75,23 +122,29 @@ public class Game {
         if (input.equals("up")) {
             if (this.playerX != 0){
                 this.playerX--;
+                this.enemyMove();
             }
         }
         if (input.equals("down")) {
             if (this.playerX != mapHeight-1){
                 this.playerX++;
+                this.enemyMove();
             }
         }
         if (input.equals("left")) {
             if (this.playerY != 0){
                 this.playerY--;
+                this.enemyMove();
             }
         }
         if (input.equals("right")) {
             if (this.playerY != mapWidth-1) {
                 this.playerY++;
+                this.enemyMove();
             }
         }
+
+        this.enemyMove();
 
 
 
@@ -127,7 +180,15 @@ public class Game {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (i == playerX && j == playerY) {
-                    System.out.print(" P ");
+                    if (i == firstEnemyX && j == firstEnemyY){
+                        System.out.print(" E ");
+                    } else {
+                        if (i == secondEnemyX && j == secondEnemyY){
+                            System.out.print(" E ");
+                        } else {
+                            System.out.print(" P ");
+                        }
+                    }
                 } else {
                     if (i == firstEnemyX && j == firstEnemyY) {
                         System.out.print(" E ");
@@ -148,17 +209,69 @@ public class Game {
         }
     }
 
+    public void enemyMove(){
+        // row 0
+        if (firstEnemyX == 0){
+            if (firstEnemyY == 0){
+                firstEnemyY ++;
+            }
+            if (firstEnemyY == 2){
+                firstEnemyX ++;
+            }
+            if (firstEnemyY == 3){
+                firstEnemyX ++;
+            }
+        }
+        // row 1
+        if (firstEnemyX == 1){
+            if (firstEnemyY == 1){
+                firstEnemyY ++;
+            }
+            if (firstEnemyY == 2){
+                firstEnemyX ++;
+            }
+            if (firstEnemyY == 3){
+                firstEnemyX ++;
+            }
+        }
+
+        // row 2
+        if (firstEnemyX == 2){
+            if (firstEnemyY == 1){
+                firstEnemyY ++;
+            }
+            if (firstEnemyY == 2){
+                firstEnemyX ++;
+            }
+            if (firstEnemyY == 3){
+                firstEnemyX ++;
+            }
+        }
+
+    }
+
+
     public void gameLoop(){
         while (true) {
             // print map
             this.printMap();
             this.run();
             if (playerX == keyX && playerY == keyY){
-                System.out.println("You won!");
-                // break;
-                System.exit(0);
+                this.printMap();
+                System.out.println("Won");
+                break;
+                // System.exit(0);
+            }
+            if (playerX == firstEnemyX && playerY == firstEnemyY){
+                this.printMap();
+                System.out.println("Lose");
+                break;
+                // System.exit(0);
             }
         }
-
     }
+
+
+
 }
+
